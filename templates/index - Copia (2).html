@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>PortaTech - Sistema Inteligente de Portaria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+            color: white;
+            padding: 5rem 0;
+            margin-bottom: 3rem;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #6e48aa;
+        }
+        .benefit-card {
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        .benefit-card:hover {
+            transform: translateY(-10px);
+        }
+        .alerta {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+        }
+        .excesso {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-lock"></i> PortaTech
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moradoresDropdown" role="button">
+                            <i class="bi bi-people-fill"></i> Moradores
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/cadastro"><i class="bi bi-person-plus"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/moradores"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="visitantesDropdown" role="button">
+                            <i class="bi bi-person-badge"></i> Visitantes
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/visitante"><i class="bi bi-person-plus"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/visitantes"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="veiculosDropdown" role="button">
+                            <i class="bi bi-car-front-fill"></i> Veículos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/veiculo/cadastrar"><i class="bi bi-plus-circle"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/veiculos"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/historico"><i class="bi bi-clock-history"></i> Histórico</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/verificar_entrada"><i class="bi bi-camera-fill"></i> Verificar Entrada</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold">PortaTech</h1>
+            <p class="lead">Solução inteligente para gestão de portarias condominiais</p>
+            <div class="mt-4">
+                <a href="#features" class="btn btn-light btn-lg me-2">Conheça o sistema</a>
+                <a href="/cadastro" class="btn btn-outline-light btn-lg">Experimente agora</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="container mb-5">
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="feature-icon">
+                    <i class="bi bi-camera-reels-fill"></i>
+                </div>
+                <h3>Reconhecimento Facial</h3>
+                <p>Identificação automática de moradores e visitantes através de câmeras inteligentes.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-icon">
+                    <i class="bi bi-car-front-fill"></i>
+                </div>
+                <h3>Controle de Veículos</h3>
+                <p>Gestão completa de vagas e reconhecimento automático de placas de veículos.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-icon">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+                <h3>Segurança Integrada</h3>
+                <p>Monitoramento em tempo real e histórico completo de todas as movimentações.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Vantagens do PortaTech</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card benefit-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-graph-up text-primary me-2"></i> Redução de Custos</h5>
+                            <p class="card-text">Diminua em até 40% os gastos com portaria física através da automação de processos.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card benefit-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-shield-check text-success me-2"></i> Segurança Aprimorada</h5>
+                            <p class="card-text">Registro digital de todas as entradas e saídas com identificação biométrica e por placas.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card benefit-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-speedometer2 text-warning me-2"></i> Eficiência Operacional</h5>
+                            <p class="card-text">Processos ágeis que eliminam filas e melhoram a experiência dos moradores.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card benefit-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-phone text-info me-2"></i> Integração Mobile</h5>
+                            <p class="card-text">Os moradores podem liberar visitantes remotamente através de um aplicativo exclusivo.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card benefit-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-database text-secondary me-2"></i> Relatórios Completo</h5>
+                            <p class="card-text">Geração automática de relatórios personalizados para a administração do condomínio.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card benefit-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-currency-dollar text-danger me-2"></i> Valorização do Imóvel</h5>
+                            <p class="card-text">Tecnologia de ponta que aumenta o valor e o status do seu condomínio.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="container py-5">
+        <h2 class="text-center mb-4">Painel de Controle</h2>
+        
+        <div class="mb-3">
+            <div class="d-flex justify-content-between mb-3">
+                <h4>Moradores</h4>
+                <div>
+                    <a href="/cadastro" class="btn btn-primary btn-sm"><i class="bi bi-person-plus"></i> Novo</a>
+                    <a href="/moradores" class="btn btn-info btn-sm"><i class="bi bi-list-ul"></i> Ver Todos</a>
+                </div>
+            </div>
+            <div class="row">
+                {% for morador in moradores %}
+                <div class="col-md-4 mb-3">
+                    <div class="card {% if morador.excesso_vagas %}excesso{% endif %} h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                {{ morador.nome }}
+                                <a href="{{ url_for('editar_morador', morador_id=morador.id) }}" class="btn btn-warning btn-sm float-end"><i class="bi bi-pencil"></i></a>
+                            </h5>
+                            <p class="card-text"><i class="bi bi-house-door"></i> Casa: {{ morador.casa }}</p>
+                            <p class="card-text"><i class="bi bi-people"></i> Moradores: {{ morador.qtde_moradores }}</p>
+                            <p class="card-text"><i class="bi bi-car-front"></i> Veículos: {{ morador.total_carros }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <div class="d-flex justify-content-between mb-3">
+                <h4>Visitantes Ativos</h4>
+                <div>
+                    <a href="/visitante" class="btn btn-success btn-sm"><i class="bi bi-person-plus"></i> Novo</a>
+                    <a href="/visitantes" class="btn btn-info btn-sm"><i class="bi bi-list-ul"></i> Ver Todos</a>
+                </div>
+            </div>
+            <div class="row">
+                {% for visitante in visitantes %}
+                <div class="col-md-4 mb-3">
+                    <div class="card {% if visitante.alerta %}alerta{% endif %} h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ visitante.nome }}</h5>
+                            <p class="card-text"><i class="bi bi-house-door"></i> Casa: {{ visitante.casa_destino }}</p>
+                            <p class="card-text"><i class="bi bi-clock"></i> Entrada: {{ visitante.hora_entrada.strftime('%d/%m/%Y %H:%M') }}</p>
+                            <p class="card-text"><i class="bi bi-clock-history"></i> Saída prevista: {{ visitante.hora_limite.strftime('%d/%m/%Y %H:%M') }}</p>
+                            {% if visitante.placa %}
+                            <p class="card-text"><i class="bi bi-car-front"></i> Placa: {{ visitante.placa }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-primary text-white py-5">
+        <div class="container text-center">
+            <h2 class="mb-4">Pronto para modernizar a portaria do seu condomínio?</h2>
+            <p class="lead mb-4">O PortaTech oferece uma solução completa com o melhor custo-benefício do mercado.</p>
+            <a href="/cadastro" class="btn btn-light btn-lg px-4 me-2">Experimente Gratuitamente</a>
+            <a href="#contact" class="btn btn-outline-light btn-lg px-4">Fale com nossos especialistas</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-shield-lock"></i> PortaTech</h5>
+                    <p>Soluções inteligentes para gestão condominial.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Links Rápidos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Home</a></li>
+                        <li><a href="/moradores" class="text-white">Moradores</a></li>
+                        <li><a href="/visitantes" class="text-white">Visitantes</a></li>
+                        <li><a href="/veiculos" class="text-white">Veículos</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3" id="contact">
+                    <h5>Contato</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-envelope"></i> contato@portatech.com.br</li>
+                        <li><i class="bi bi-phone"></i> (21) 99055-6666</li>
+                        <li><i class="bi bi-building"></i> Rio de Janeiro - RJ</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 PortaTech. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

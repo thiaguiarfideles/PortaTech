@@ -1,0 +1,8 @@
+{
+  "email": {
+    "from": "seu.email@gmail.com",
+    "password": "sua_senha_de_app",
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 465
+  }
+}

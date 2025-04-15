@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar Morador | PortaTech</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .hero-cadastro {
+            background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .webcam-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        video, canvas {
+            display: block;
+            margin: 10px auto;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 4px;
+        }
+        .form-section {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .btn-capture {
+            background-color: #6e48aa;
+            color: white;
+            border: none;
+        }
+        .btn-capture:hover {
+            background-color: #5d3a9e;
+            color: white;
+        }
+        /* Adicione ao seu <style> */
+video {
+    -webkit-transform: scaleX(-1); /* Flip horizontal para espelhado */
+    transform: scaleX(-1);
+    object-fit: cover; /* Melhor preenchimento em mobile */
+}
+
+@media screen and (max-width: 768px) {
+    video, canvas {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .webcam-container {
+        padding: 10px;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-lock"></i> PortaTech
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moradoresDropdown" role="button">
+                            <i class="bi bi-people-fill"></i> Moradores
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/cadastro"><i class="bi bi-person-plus"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/moradores"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="visitantesDropdown" role="button">
+                            <i class="bi bi-person-badge"></i> Visitantes
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/visitante"><i class="bi bi-person-plus"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/visitantes"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="veiculosDropdown" role="button">
+                            <i class="bi bi-car-front-fill"></i> Veículos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/veiculo/cadastrar"><i class="bi bi-plus-circle"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/veiculos"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-cadastro">
+        <div class="container text-center">
+            <h1><i class="bi bi-person-plus"></i> Cadastrar Morador</h1>
+            <p class="lead">Preencha os dados abaixo para cadastrar um novo morador no sistema</p>
+        </div>
+    </section>
+
+    <!-- Form Section -->
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="form-section">
+                    <form action="/cadastro" method="post" enctype="multipart/form-data">
+                        <h4 class="mb-4"><i class="bi bi-person-lines-fill"></i> Informações Pessoais</h4>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nome Completo</label>
+                                <input type="text" name="nome" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="casa">Casa</label>
+<select name="casa" class="form-control" required>
+    <option value="">Selecione a casa</option>
+    {% for casa in casas_disponiveis %}
+        <option value="{{ casa }}" {% if form_data and form_data.get('casa') == casa %}selected{% endif %}>
+            {{ casa }}
+        </option>
+    {% endfor %}
+</select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo de Morador</label>
+                                <select name="tipo" class="form-select" required>
+                                    <option value="Proprietário">Proprietário</option>
+                                    <option value="Inquilino">Inquilino</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Quantidade de Moradores</label>
+                                <input type="number" name="qtde_moradores" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Possui veículo?</label>
+                            <select name="tem_carro" class="form-select" required>
+                                <option value="Sim">Sim</option>
+                                <option value="Não">Não</option>
+                            </select>
+                        </div>
+
+                        <h4 class="mb-4 mt-5"><i class="bi bi-camera-fill"></i> Reconhecimento Facial</h4>
+                        
+                        <div class="webcam-container mb-4">
+                            <label class="form-label">Foto do Morador</label>
+                            <p class="text-muted small mb-3">Posicione o rosto no quadro abaixo e clique em "Capturar Foto"</p>
+                            
+                            <video id="video" autoplay></video>
+                            <canvas id="canvas" style="display: none;"></canvas>
+                            <input type="hidden" name="foto_webcam" id="foto_webcam">
+                            
+                            <div class="text-center mt-3">
+                                <button type="button" class="btn btn-capture" onclick="capturarFoto()">
+                                    <i class="bi bi-camera"></i> Capturar Foto
+                                </button>
+                            </div>
+                            <div id="mobile-fallback" style="display: none;" class="alert alert-warning">
+                                <p>Se a câmera não iniciar automaticamente:</p>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="iniciarCamera()">
+                                    <i class="bi bi-camera"></i> Tentar novamente
+                                </button>
+                                <p class="mt-2 small">Ou use o upload de arquivo abaixo:</p>
+                                <input type="file" class="form-control" accept="image/*" capture="camera">
+                            </div>
+                        </div>
+
+                        <h4 class="mb-4 mt-5"><i class="bi bi-car-front"></i> Dados do Veículo</h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Foto da Placa</label>
+                            <div class="d-flex mb-3">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="radio" name="placa_opcao" id="opcao_webcam" value="webcam">
+                                    <label class="form-check-label" for="opcao_webcam">Usar Câmera</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="placa_opcao" id="opcao_arquivo" value="arquivo" checked>
+                                    <label class="form-check-label" for="opcao_arquivo">Enviar Arquivo</label>
+                                </div>
+                            </div>
+                        
+                            <!-- Webcam da placa -->
+                            <div id="webcam_placa" style="display: none;">
+                                <div class="webcam-container">
+                                    <p class="text-muted small mb-3">Posicione a placa do veículo no quadro abaixo</p>
+                                    <video id="video_placa" autoplay></video>
+                                    <canvas id="canvas_placa" style="display: none;"></canvas>
+                                    <input type="hidden" name="foto_placa_webcam" id="foto_placa_webcam">
+                                    
+                                    <div class="text-center mt-3">
+                                        <button type="button" class="btn btn-capture" onclick="capturarFotoPlaca()">
+                                            <i class="bi bi-camera"></i> Capturar Placa
+                                        </button>
+                                    </div>
+                                    <div id="mobile-fallback" style="display: none;" class="alert alert-warning">
+                                        <p>Se a câmera não iniciar automaticamente:</p>
+                                        <button type="button" class="btn btn-sm btn-warning" onclick="iniciarCamera()">
+                                            <i class="bi bi-camera"></i> Tentar novamente
+                                        </button>
+                                        <p class="mt-2 small">Ou use o upload de arquivo abaixo:</p>
+                                        <input type="file" class="form-control" accept="image/*" capture="camera">
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Upload da placa -->
+                            <div id="upload_placa" style="display: block;">
+                                <input type="file" name="foto_placa" class="form-control" accept="image/*">
+                                <div class="form-text">Envie uma foto clara da placa do veículo</div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="/" class="btn btn-outline-secondary me-md-2">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Cadastrar Morador
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Substitua todo o conteúdo do <script> por este código atualizado
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const inputFoto = document.getElementById('foto_webcam');
+    const videoPlaca = document.getElementById('video_placa');
+    const canvasPlaca = document.getElementById('canvas_placa');
+    const inputPlaca = document.getElementById('foto_placa_webcam');
+    let stream = null;
+
+    // Opções de configuração da câmera para mobile
+    const constraints = {
+        video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: 'user' // 'user' para frontal, 'environment' para traseira
+        },
+        audio: false
+    };
+
+    // Função para iniciar câmera
+    async function iniciarCamera() {
+        try {
+            // Parar streams existentes
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            // Solicitar permissão e iniciar câmera
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            
+            // Configurar os elementos de vídeo
+            video.srcObject = stream;
+            videoPlaca.srcObject = stream.clone();
+            
+            // Orientação para mobile
+            video.setAttribute('playsinline', '');
+            videoPlaca.setAttribute('playsinline', '');
+            
+            // Evento para quando a câmera estiver pronta
+            video.onloadedmetadata = () => {
+                video.play();
+                videoPlaca.play();
+            };
+            
+        } catch (err) {
+            console.error("Erro na câmera:", err);
+            alert("Não foi possível acessar a câmera. Verifique as permissões.");
+            
+            // Mostrar botão alternativo para mobile
+            document.getElementById('mobile-fallback').style.display = 'block';
+        }
+    }
+
+    // Função para capturar foto
+    function capturarFoto() {
+        try {
+            const context = canvas.getContext('2d');
+            
+            // Ajustar para orientação mobile
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                canvas.width = video.videoHeight;
+                canvas.height = video.videoWidth;
+                context.rotate(Math.PI/2);
+                context.translate(0, -canvas.width);
+            } else {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+            }
+            
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Resetar transformações
+            if (isMobile) {
+                context.setTransform(1, 0, 0, 1, 0, 0);
+            }
+            
+            const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+            inputFoto.value = dataURL;
+            
+            mostrarPreview(dataURL, '.webcam-container');
+            alert("Foto do morador capturada com sucesso!");
+        } catch (err) {
+            console.error("Erro ao capturar foto:", err);
+            alert("Erro ao capturar foto. Tente novamente.");
+        }
+    }
+
+    // Função para capturar placa
+    function capturarFotoPlaca() {
+        try {
+            const context = canvasPlaca.getContext('2d');
+            
+            // Ajustar para orientação mobile
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                canvasPlaca.width = videoPlaca.videoHeight;
+                canvasPlaca.height = videoPlaca.videoWidth;
+                context.rotate(Math.PI/2);
+                context.translate(0, -canvasPlaca.width);
+            } else {
+                canvasPlaca.width = videoPlaca.videoWidth;
+                canvasPlaca.height = videoPlaca.videoHeight;
+            }
+            
+            context.drawImage(videoPlaca, 0, 0, canvasPlaca.width, canvasPlaca.height);
+            
+            // Resetar transformações
+            if (isMobile) {
+                context.setTransform(1, 0, 0, 1, 0, 0);
+            }
+            
+            const dataURL = canvasPlaca.toDataURL('image/jpeg', 0.8);
+            inputPlaca.value = dataURL;
+            
+            mostrarPreview(dataURL, '#webcam_placa .webcam-container');
+            alert("Foto da placa capturada com sucesso!");
+        } catch (err) {
+            console.error("Erro ao capturar placa:", err);
+            alert("Erro ao capturar foto da placa. Tente novamente.");
+        }
+    }
+
+    // Função auxiliar para mostrar preview
+    function mostrarPreview(dataURL, containerSelector) {
+        const preview = document.createElement('img');
+        preview.src = dataURL;
+        preview.className = 'img-thumbnail mt-2';
+        preview.style.maxWidth = '200px';
+        
+        const container = document.querySelector(containerSelector);
+        const existingPreview = container.querySelector('.img-thumbnail');
+        if (existingPreview) {
+            container.replaceChild(preview, existingPreview);
+        } else {
+            container.appendChild(preview);
+        }
+    }
+
+    // Alternar entre webcam e upload de arquivo
+    document.getElementById('opcao_webcam').addEventListener('change', toggleOpcaoPlaca);
+    document.getElementById('opcao_arquivo').addEventListener('change', toggleOpcaoPlaca);
+
+    function toggleOpcaoPlaca() {
+        const usarWebcam = document.getElementById('opcao_webcam').checked;
+        document.getElementById('webcam_placa').style.display = usarWebcam ? 'block' : 'none';
+        document.getElementById('upload_placa').style.display = usarWebcam ? 'none' : 'block';
+        
+        if (usarWebcam && !stream) {
+            iniciarCamera();
+        }
+    }
+
+    // Iniciar câmera quando a página carregar
+    iniciarCamera();
+});
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

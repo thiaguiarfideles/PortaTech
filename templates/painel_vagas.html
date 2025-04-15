@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Vagas | PortaTech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <meta http-equiv="refresh" content="600"> <!-- Atualiza a cada 10 minutos -->
+    <style>
+        /* Estilos do index.html */
+        .hero-section {
+            background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+            color: white;
+            padding: 5rem 0;
+            margin-bottom: 3rem;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #6e48aa;
+        }
+        .benefit-card {
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        .benefit-card:hover {
+            transform: translateY(-10px);
+        }
+        .alerta {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+        }
+        .excesso {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        
+        /* Estilos específicos do painel de vagas */
+        .vaga-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            padding: 15px;
+        }
+        .vaga-card {
+            border-radius: 8px;
+            text-align: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: none;
+        }
+        .vaga-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        .vaga-livre {
+            background-color: #28a745;
+            color: white;
+        }
+        .vaga-ocupada {
+            background-color: #dc3545;
+            color: white;
+        }
+        .vaga-reservada {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .vaga-icon {
+            font-size: 2.5rem;
+            margin: 15px 0;
+        }
+        .vaga-number {
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .status-badge {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .dashboard-header {
+            background-color: #343a40;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .refresh-btn {
+            background-color: #6e48aa;
+            color: white;
+            border: none;
+            transition: all 0.3s;
+        }
+        .refresh-btn:hover {
+            background-color: #5a3a8a;
+            transform: rotate(45deg);
+        }
+        .vaga-details {
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        .search-box {
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 768px) {
+            .vaga-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            .dashboard-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-lock"></i> PortaTech
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moradoresDropdown" role="button">
+                            <i class="bi bi-people-fill"></i> Moradores
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/cadastro"><i class="bi bi-person-plus"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/moradores"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="visitantesDropdown" role="button">
+                            <i class="bi bi-person-badge"></i> Visitantes
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/visitante"><i class="bi bi-person-plus"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/visitantes"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="veiculosDropdown" role="button">
+                            <i class="bi bi-car-front-fill"></i> Veículos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/veiculo/cadastrar"><i class="bi bi-plus-circle"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/veiculos"><i class="bi bi-list-ul"></i> Listar</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item active" href="/painel_vagas"><i class="bi bi-p-square"></i> Painel de Vagas</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/historico"><i class="bi bi-clock-history"></i> Histórico</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/verificar_entrada"><i class="bi bi-camera-fill"></i> Verificar Entrada</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button onclick="location.reload()" class="btn refresh-btn">
+                        <i class="bi bi-arrow-clockwise"></i> Atualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold"><i class="bi bi-p-square"></i> Painel de Vagas</h1>
+            <p class="lead">Monitoramento em tempo real das vagas de garagem</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container mb-5">
+        <div class="dashboard-header">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div>
+                    <i class="bi bi-grid-3x3-gap"></i> <strong>Total:</strong> {{ status_casas|length }} vagas
+                </div>
+                <div class="vr"></div>
+                <div class="text-success">
+                    <i class="bi bi-check-circle"></i> <strong>Livre:</strong> {{ vagas_livres }}
+                </div>
+                <div class="vr"></div>
+                <div class="text-danger">
+                    <i class="bi bi-x-circle"></i> <strong>Ocupada:</strong> {{ status_casas|length - vagas_livres }}
+                </div>
+                <div class="vr"></div>
+                <div class="text-warning">
+                    <i class="bi bi-clock"></i> <strong>Atualizado:</strong> {{ now.strftime('%d/%m/%Y %H:%M') }}
+                </div>
+            </div>
+            <div class="search-box">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Buscar vaga..." id="searchInput">
+                </div>
+            </div>
+        </div>
+
+        <div class="vaga-grid">
+            {% for casa, status, detalhes in status_casas %}
+            <div class="vaga-card 
+                {% if status == 'livre' %}vaga-livre
+                {% elif status == 'reservada' %}vaga-reservada
+                {% else %}vaga-ocupada{% endif %}"
+                data-vaga="{{ casa }}"
+                data-status="{{ status }}"
+                data-placa="{% if detalhes.placa %}{{ detalhes.placa }}{% endif %}"
+                data-morador="{% if detalhes.morador %}{{ detalhes.morador }}{% endif %}">
+                
+                <div class="vaga-number">{{ casa }}</div>
+                <div class="vaga-icon">
+                    <i class="bi bi-car-front-fill"></i>
+                </div>
+                <span class="status-badge 
+                    {% if status == 'livre' %}bg-success
+                    {% elif status == 'reservada' %}bg-warning text-dark
+                    {% else %}bg-danger{% endif %}">
+                    {% if status == 'livre' %}DISPONÍVEL
+                    {% elif status == 'reservada' %}RESERVADA
+                    {% else %}OCUPADA{% endif %}
+                </span>
+                
+                {% if status != 'livre' and detalhes %}
+                <div class="vaga-details mt-2">
+                    {% if detalhes.placa %}
+                    <div><i class="bi bi-tag"></i> {{ detalhes.placa }}</div>
+                    {% endif %}
+                    {% if detalhes.morador %}
+                    <div><i class="bi bi-person"></i> {{ detalhes.morador }}</div>
+                    {% endif %}
+                    {% if detalhes.entrada %}
+                    <div><i class="bi bi-clock-history"></i> {{ detalhes.entrada.strftime('%H:%M') }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-shield-lock"></i> PortaTech</h5>
+                    <p>Soluções inteligentes para gestão condominial.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Links Rápidos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Home</a></li>
+                        <li><a href="/moradores" class="text-white">Moradores</a></li>
+                        <li><a href="/visitantes" class="text-white">Visitantes</a></li>
+                        <li><a href="/veiculos" class="text-white">Veículos</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contato</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-envelope"></i> contato@portatech.com.br</li>
+                        <li><i class="bi bi-phone"></i> (21) 99055-6666</li>
+                        <li><i class="bi bi-building"></i> Rio de Janeiro - RJ</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 PortaTech. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Função de busca
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const vagas = document.querySelectorAll('.vaga-card');
+            
+            vagas.forEach(vaga => {
+                const vagaNum = vaga.getAttribute('data-vaga').toLowerCase();
+                const placa = vaga.getAttribute('data-placa')?.toLowerCase() || '';
+                const morador = vaga.getAttribute('data-morador')?.toLowerCase() || '';
+                
+                if (vagaNum.includes(searchTerm) || 
+                    placa.includes(searchTerm) || 
+                    morador.includes(searchTerm)) {
+                    vaga.style.display = 'block';
+                } else {
+                    vaga.style.display = 'none';
+                }
+            });
+        });
+
+        // Atualização automática a cada 5 minutos
+        setTimeout(function() {
+            location.reload();
+        }, 300000); // 300000ms = 5 minutos
+    </script>
+</body>
+</html>

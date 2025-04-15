@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Veículos Cadastrados | PortaTech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .table th {
+            background-color: #6e48aa;
+            color: white;
+        }
+        .badge-car {
+            background-color: #6f42c1;
+        }
+        .badge-bike {
+            background-color: #fd7e14;
+        }
+        .badge-truck {
+            background-color: #20c997;
+        }
+        .badge-other {
+            background-color: #6c757d;
+        }
+        .btn-edit {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+        .vehicle-icon {
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+        .search-box {
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-lock"></i> PortaTech
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moradoresDropdown" role="button">
+                            <i class="bi bi-people-fill"></i> Moradores
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/cadastro"><i class="bi bi-person-plus"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/moradores"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="visitantesDropdown" role="button">
+                            <i class="bi bi-person-badge"></i> Visitantes
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/visitante"><i class="bi bi-person-plus"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/visitantes"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="veiculosDropdown" role="button">
+                            <i class="bi bi-car-front-fill"></i> Veículos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/veiculo/cadastrar"><i class="bi bi-plus-circle"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/veiculos"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1><i class="bi bi-car-front"></i> Veículos Cadastrados</h1>
+            <p class="lead">Todos os veículos registrados no sistema do condomínio</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="table-container">
+            <div class="d-flex justify-content-between mb-4">
+                <a href="{{ url_for('cadastrar_veiculo') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Novo Veículo
+                </a>
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Total:</span>
+                    <span class="badge bg-primary">{{ veiculos|length }}</span>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="veiculosTable" class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Morador</th>
+                            <th>Casa</th>
+                            <th>Placa</th>
+                            <th>Tipo</th>
+                            <th>Cadastro</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for veiculo in veiculos %}
+                        <tr>
+                            <td>
+                                <i class="bi bi-person vehicle-icon"></i>
+                                {{ veiculo.morador.nome }}
+                            </td>
+                            <td>{{ veiculo.morador.casa }}</td>
+                            <td>
+                                <span class="badge bg-dark">
+                                    {{ veiculo.placa }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if veiculo.tipo_veiculo %}
+                                    {% if 'carro' in veiculo.tipo_veiculo.lower() %}
+                                        <span class="badge badge-car">
+                                            <i class="bi bi-car-front"></i> {{ veiculo.tipo_veiculo }}
+                                        </span>
+                                    {% elif 'moto' in veiculo.tipo_veiculo.lower() %}
+                                        <span class="badge badge-bike">
+                                            <i class="bi bi-bicycle"></i> {{ veiculo.tipo_veiculo }}
+                                        </span>
+                                    {% elif 'caminh' in veiculo.tipo_veiculo.lower() %}
+                                        <span class="badge badge-truck">
+                                            <i class="bi bi-truck"></i> {{ veiculo.tipo_veiculo }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-other">
+                                            <i class="bi bi-vehicle-icon"></i> {{ veiculo.tipo_veiculo }}
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary">Não informado</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ veiculo.data_cadastro.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <a href="{{ url_for('editar_veiculo', veiculo_id=veiculo.id) }}" class="btn btn-sm btn-edit">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#veiculosTable').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json'
+                },
+                dom: '<"top"f>rt<"bottom"lip><"clear">',
+                initComplete: function() {
+                    $('.dataTables_filter input').addClass('form-control search-box');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

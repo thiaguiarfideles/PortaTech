@@ -9,7 +9,7 @@ from PIL import Image
 import face_recognition
 import easyocr
 import sys
-
+from .models import Morador, VagaGaragem, Visitante, Movimentacao, Veiculo, ConfiguracaoVagas
 
 # ===== VERIFICAÇÃO DE VERSÕES =====
 def check_versions():
@@ -494,30 +494,6 @@ class ReconhecimentoPlacas:
             logger.error(f"Erro no reconhecimento de placa: {str(e)}", exc_info=True)
             return None
 
-    def _preprocessar_placa(self, img):
-        """Pré-processamento avançado da região da placa"""
-        # Redimensionar para tamanho consistente (baseado no tutorial)
-        img = cv2.resize(img, (400, 100))
-        
-        # Converter para tons de cinza
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        
-        # Aplicar filtro bilateral para redução de ruído
-        gray = cv2.bilateralFilter(gray, 11, 17, 17)
-        
-        # Limiarização adaptativa
-        thresh = cv2.adaptiveThreshold(
-            gray, 255,
-            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-            cv2.THRESH_BINARY_INV, 11, 2
-        )
-        
-        # Operações morfológicas para remover ruídos
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-        processed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
-        
-        return processed    
-            
 
     def _bytes_para_imagem(self, imagem_bytes):
         """Converte bytes para imagem OpenCV"""
@@ -526,6 +502,7 @@ class ReconhecimentoPlacas:
 
     def _preprocessar_placa(self, img):
         """Aplica técnicas avançadas de pré-processamento"""
+        img = cv2.resize(img, (400, 100))
         # Converter para escala de cinza
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -548,6 +525,8 @@ class ReconhecimentoPlacas:
         processed = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
 
         return processed
+
+
 
     def _executar_ocr(self, img):
         """Executa o OCR na imagem pré-processada"""

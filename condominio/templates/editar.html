@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Morador | PortaTech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .form-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .photo-preview {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+        }
+        .photo-upload {
+            position: relative;
+            display: inline-block;
+        }
+        .photo-upload input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+        .photo-upload-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px;
+            text-align: center;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            font-size: 0.8rem;
+        }
+        .impact-badge {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('routes.index') }}">
+                <i class="bi bi-shield-lock"></i> PortaTech
+            </a>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="hero-section">
+        <div class="container text-center">
+            <h1><i class="bi bi-person-gear"></i> Editar Morador</h1>
+            <p class="lead">Atualize os dados e fotos do morador</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card form-card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Editar Cadastro</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data">
+                            <!-- Dados Básicos -->
+                            <div class="row mb-4">
+                                <div class="col-md-4 text-center">
+                                    <div class="photo-upload mb-3">
+                                        {% if morador.foto_morador %}
+                                            <img src="{{ url_for('routes.ver_foto_morador', id=morador.id) }}"
+                                                 class="photo-preview mb-2"
+                                                 alt="Foto de {{ morador.nome }}"
+                                                 id="fotoPreview"
+                                                 onerror="this.src='{{ url_for('static', filename='img/user_padrao.png') }}'">
+                                        {% else %}
+                                            <div class="photo-preview d-flex align-items-center justify-content-center mb-2 bg-light" id="fotoPreview">
+                                                <i class="bi bi-person fs-1 text-secondary"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="photo-upload-label">Clique para alterar</span>
+                                        <input type="file" name="nova_foto_morador" id="fotoInput" accept="image/*">
+                                    </div>
+                                    <small class="text-muted">Formatos: JPG, PNG (Máx. 2MB)</small>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="nome" class="form-label">Nome Completo</label>
+                                        <input type="text" class="form-control" id="nome" name="nome" value="{{ morador.nome }}" required>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="casa" class="form-label">Casa/Apartamento</label>
+                                            <select class="form-select" id="casa" name="casa" required>
+                                                {% for casa in casas_disponiveis %}
+                                                    <option value="{{ casa }}" {% if casa == morador.casa %}selected{% endif %}>{{ casa }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="tipo" class="form-label">Tipo</label>
+                                            <select class="form-select" id="tipo" name="tipo" required>
+                                                <option value="proprietario" {% if morador.tipo == 'proprietario' %}selected{% endif %}>Proprietário</option>
+                                                <option value="inquilino" {% if morador.tipo == 'inquilino' %}selected{% endif %}>Inquilino</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Possui Veículo?</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="tem_carro" id="temCarroSim" value="Sim" {% if morador.tem_carro %}checked{% endif %}>
+                                                <label class="form-check-label" for="temCarroSim">Sim</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="tem_carro" id="temCarroNao" value="Não" {% if not morador.tem_carro %}checked{% endif %}>
+                                                <label class="form-check-label" for="temCarroNao">Não</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="qtde_moradores" class="form-label">Quantidade de Moradores</label>
+                                            <input type="number" class="form-control" id="qtde_moradores" name="qtde_moradores" min="1" value="{{ morador.qtde_moradores }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Foto da Placa (se tiver carro) -->
+                            <div id="placaSection" {% if not morador.tem_carro %}style="display: none;"{% endif %}>
+                                <h5 class="mb-3"><i class="bi bi-car-front"></i> Veículo</h5>
+                                <div class="row align-items-center mb-4">
+                                    <div class="col-md-4 text-center">
+                                        <div class="photo-upload">
+                                            {% if morador.tem_carro and morador.foto_placa %}
+                                                <img src="{{ url_for('static', filename=morador.foto_placa.split('static/')[-1] if 'static/' in morador.foto_placa else morador.foto_placa) }}" 
+                                                     class="photo-preview mb-2"
+                                                     alt="Foto da placa"
+                                                     id="placaPreview"
+                                                     onerror="this.src='{{ url_for('static', filename='img/placa_padrao.png') }}'">
+                                            {% else %}
+                                                <div class="photo-preview d-flex align-items-center justify-content-center mb-2 bg-light" id="placaPreview">
+                                                    <i class="bi bi-car-front fs-1 text-secondary"></i>
+                                                </div>
+                                            {% endif %}
+                                            <span class="photo-upload-label">Clique para alterar</span>
+                                            <input type="file" name="nova_foto_placa" id="placaInput" accept="image/*">
+                                        </div>
+                                        <small class="text-muted">Foto da placa do veículo</small>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-info-circle"></i> Para editar os veículos cadastrados, acesse a seção de veículos no perfil do morador.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Impacto nas Vagas -->
+                            {% if vagas_afetadas > 0 %}
+                            <div class="alert alert-warning">
+                                <h5><i class="bi bi-parking"></i> Impacto nas Vagas</h5>
+                                <p class="mb-0">
+                                    Alterar a casa ou tipo deste morador afetará <span class="badge bg-warning text-dark impact-badge">{{ vagas_afetadas }} vaga(s)</span> na garagem.
+                                </p>
+                            </div>
+                            {% endif %}
+
+                            <!-- Botões de Ação -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                <a href="{{ url_for('routes.visualizar_moradores') }}" class="btn btn-outline-secondary me-md-2">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Salvar Alterações
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+            // Preview da foto do morador
+            document.getElementById('fotoInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const preview = document.getElementById('fotoPreview');
+                        if (preview.tagName === 'IMG') {
+                            preview.src = event.target.result;
+                        } else {
+                            // Se era um placeholder, substitui por imagem
+                            const img = document.createElement('img');
+                            img.src = event.target.result;
+                            img.className = 'photo-preview mb-2';
+                            img.id = 'fotoPreview';
+                            img.alt = 'Nova foto do morador';
+                            preview.parentNode.replaceChild(img, preview);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        
+            // Preview da foto da placa
+            document.getElementById('placaInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const preview = document.getElementById('placaPreview');
+                        if (preview.tagName === 'IMG') {
+                            preview.src = event.target.result;
+                        } else {
+                            // Se era um placeholder, substitui por imagem
+                            const img = document.createElement('img');
+                            img.src = event.target.result;
+                            img.className = 'photo-preview mb-2';
+                            img.id = 'placaPreview';
+                            img.alt = 'Nova foto da placa';
+                            preview.parentNode.replaceChild(img, preview);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        
+            // Mostrar/ocultar seção de placa conforme seleção
+            document.querySelectorAll('input[name="tem_carro"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('placaSection').style.display = 
+                        this.value === 'Sim' ? 'block' : 'none';
+                });
+            });
+        
+            // Validação do tamanho do arquivo - CORREÇÃO AQUI
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const fotoInput = document.getElementById('fotoInput');
+                const placaInput = document.getElementById('placaInput');
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                
+                // Verifica se há arquivo na foto do morador e se excede o tamanho
+                if (fotoInput.files.length > 0 && fotoInput.files[0].size > maxSize) {
+                    alert('A foto do morador deve ter no máximo 2MB');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Verifica se tem carro e se há arquivo na foto da placa
+                if (document.getElementById('temCarroSim').checked && 
+                    placaInput.files.length > 0 && 
+                    placaInput.files[0].size > maxSize) {
+                    alert('A foto da placa deve ter no máximo 2MB');
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        </script>
+</body>
+</html>

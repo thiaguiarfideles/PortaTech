@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Vagas | PortaTech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .config-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .summary-card {
+            background-color: #e9ecef;
+            border-left: 4px solid #0d6efd;
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-lock"></i> PortaTech
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moradoresDropdown" role="button">
+                            <i class="bi bi-people-fill"></i> Moradores
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/cadastro"><i class="bi bi-person-plus"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/moradores"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="veiculosDropdown" role="button">
+                            <i class="bi bi-car-front-fill"></i> Veículos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/veiculo/cadastrar"><i class="bi bi-plus-circle"></i> Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="/veiculos"><i class="bi bi-list-ul"></i> Listar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="vagasDropdown" role="button">
+                            <i class="bi bi-p-square"></i> Vagas
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item active" href="/configurar_vagas"><i class="bi bi-gear"></i> Configurar</a></li>
+                            <li><a class="dropdown-item" href="/painel_vagas_visual"><i class="bi bi-grid"></i> Painel</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-gear"></i> Configurar Vagas</h1>
+            <a href="/painel_vagas_visual" class="btn btn-outline-primary">
+                <i class="bi bi-grid"></i> Ver Painel de Vagas
+            </a>
+        </div>
+
+        <div class="row">
+            <!-- Formulário de Configuração -->
+            <div class="col-lg-8">
+                <div class="card config-card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-sliders"></i> Parâmetros de Vagas</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('routes.configurar_vagas') }}">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="total_vagas" class="form-label">Total de Vagas</label>
+                                    <input type="number" class="form-control" id="total_vagas" name="total_vagas" 
+                                           value="{{ config.total_vagas if config else 73 }}" min="1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="vagas_visitantes" class="form-label">Vagas para Visitantes</label>
+                                    <input type="number" class="form-control" id="vagas_visitantes" name="vagas_visitantes" 
+                                           value="{{ config.vagas_visitantes if config else 3 }}" min="0" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="vagas_proprietario" class="form-label">Vagas por Proprietário</label>
+                                    <input type="number" class="form-control" id="vagas_proprietario" name="vagas_proprietario" 
+                                           value="{{ config.vagas_proprietario if config else 2 }}" min="1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="vagas_inquilino" class="form-label">Vagas por Inquilino</label>
+                                    <input type="number" class="form-control" id="vagas_inquilino" name="vagas_inquilino" 
+                                           value="{{ config.vagas_inquilino if config else 1 }}" min="1" required>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Salvar Configuração
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resumo e Estatísticas -->
+            <div class="col-lg-4">
+                <div class="card summary-card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Resumo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6>Distribuição Atual</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Proprietários
+                                    <span class="badge bg-primary rounded-pill">
+                                        {{ Morador.query.filter_by(tipo='proprietario').count() }}
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Inquilinos
+                                    <span class="badge bg-primary rounded-pill">
+                                        {{ Morador.query.filter_by(tipo='inquilino').count() }}
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Vagas Ocupadas
+                                    <span class="badge bg-primary rounded-pill">
+                                        {{ VagaGaragem.query.filter_by(ocupada=True).count() }}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-lightbulb"></i> Dica</h6>
+                            <p class="small mb-0">
+                                Configure as vagas considerando a capacidade total do estacionamento e a proporção de moradores.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pré-visualização da Distribuição -->
+        <div class="card config-card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-eye"></i> Pré-visualização da Distribuição</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Tipo de Vaga</th>
+                                <th>Quantidade</th>
+                                <th>Total Necessário</th>
+                                <th>Situação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Proprietários</td>
+                                <td>{{ config.vagas_proprietario if config else 2 }} por unidade</td>
+                                <td>{{ (config.vagas_proprietario if config else 2) * Morador.query.filter_by(tipo='proprietario').count() }}</td>
+                                <td>
+                                    {% set total_prop = (config.vagas_proprietario if config else 2) * Morador.query.filter_by(tipo='proprietario').count() %}
+                                    {% if total_prop <= (config.total_vagas if config else 73) %}
+                                        <span class="badge bg-success">Dentro do limite</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Excede limite</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Inquilinos</td>
+                                <td>{{ config.vagas_inquilino if config else 1 }} por unidade</td>
+                                <td>{{ (config.vagas_inquilino if config else 1) * Morador.query.filter_by(tipo='inquilino').count() }}</td>
+                                <td>
+                                    {% set total_inq = (config.vagas_inquilino if config else 1) * Morador.query.filter_by(tipo='inquilino').count() %}
+                                    {% if total_inq <= (config.total_vagas if config else 73) %}
+                                        <span class="badge bg-success">Dentro do limite</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Excede limite</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Visitantes</td>
+                                <td>Vagas fixas</td>
+                                <td>{{ config.vagas_visitantes if config else 3 }}</td>
+                                <td>
+                                    {% if (config.vagas_visitantes if config else 3) <= (config.total_vagas if config else 73) %}
+                                        <span class="badge bg-success">Dentro do limite</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Excede limite</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr class="table-active">
+                                <td><strong>Total</strong></td>
+                                <td></td>
+                                <td>
+                                    <strong>
+                                        {{ ((config.vagas_proprietario if config else 2) * Morador.query.filter_by(tipo='proprietario').count()) + 
+                                           ((config.vagas_inquilino if config else 1) * Morador.query.filter_by(tipo='inquilino').count()) + 
+                                           (config.vagas_visitantes if config else 3) }}
+                                    </strong>
+                                </td>
+                                <td>
+                                    {% set total_geral = ((config.vagas_proprietario if config else 2) * Morador.query.filter_by(tipo='proprietario').count()) + 
+                                                         ((config.vagas_inquilino if config else 1) * Morador.query.filter_by(tipo='inquilino').count()) + 
+                                                         (config.vagas_visitantes if config else 3) %}
+                                    {% if total_geral <= (config.total_vagas if config else 73) %}
+                                        <span class="badge bg-success">Configuração válida</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Configuração inválida</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Atualiza a pré-visualização quando os valores mudam
+        document.querySelectorAll('#total_vagas, #vagas_proprietario, #vagas_inquilino, #vagas_visitantes').forEach(input => {
+            input.addEventListener('change', function() {
+                // Simples recarregamento para atualizar a pré-visualização
+                document.querySelector('form').submit();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -47,23 +47,20 @@
             background-color: #5d3a9e;
             color: white;
         }
-        /* Adicione ao seu <style> */
-video {
-    -webkit-transform: scaleX(-1); /* Flip horizontal para espelhado */
-    transform: scaleX(-1);
-    object-fit: cover; /* Melhor preenchimento em mobile */
-}
-
-@media screen and (max-width: 768px) {
-    video, canvas {
-        max-width: 100%;
-        height: auto;
-    }
-    
-    .webcam-container {
-        padding: 10px;
-    }
-}
+        video {
+            -webkit-transform: scaleX(-1); /* Flip horizontal para espelhado */
+            transform: scaleX(-1);
+            object-fit: cover; /* Melhor preenchimento em mobile */
+        }
+        @media screen and (max-width: 768px) {
+            video, canvas {
+                max-width: 100%;
+                height: auto;
+            }
+            .webcam-container {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -123,6 +120,16 @@ video {
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="form-section">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
                     <form action="/cadastro" method="post" enctype="multipart/form-data">
                         <h4 class="mb-4"><i class="bi bi-person-lines-fill"></i> Informações Pessoais</h4>
                         
@@ -133,25 +140,27 @@ video {
                             </div>
                             <div class="col-md-6">
                                 <label for="casa">Casa</label>
-<select name="casa" class="form-control" required>
-    <option value="">Selecione a casa</option>
-    {% for casa in casas_disponiveis %}
-        <option value="{{ casa }}" {% if form_data and form_data.get('casa') == casa %}selected{% endif %}>
-            {{ casa }}
-        </option>
-    {% endfor %}
-</select>
+                                <select name="casa" class="form-control" required>
+                                    <option value="">Selecione a casa</option>
+                                    {% for casa in casas_disponiveis %}
+                                        <option value="{{ casa }}" {% if form_data and form_data.get('casa') == casa %}selected{% endif %}>
+                                            {{ casa }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="tipo" class="form-label">Tipo de Morador</label>
+                            <select class="form-select" id="tipo" name="tipo" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="proprietario">Proprietário</option>
+                                <option value="inquilino">Inquilino</option>
+                            </select>
+                        </div>
+                        
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Tipo de Morador</label>
-                                <select name="tipo" class="form-select" required>
-                                    <option value="Proprietário">Proprietário</option>
-                                    <option value="Inquilino">Inquilino</option>
-                                </select>
-                            </div>
                             <div class="col-md-6">
                                 <label class="form-label">Quantidade de Moradores</label>
                                 <input type="number" name="qtde_moradores" class="form-control" required>
@@ -174,7 +183,7 @@ video {
                             
                             <video id="video" autoplay></video>
                             <canvas id="canvas" style="display: none;"></canvas>
-                            <input type="hidden" name="foto_webcam" id="foto_webcam">
+                            <input type="file" name="foto_morador" id="foto_morador_file" style="display: none;" accept="image/*">
                             
                             <div class="text-center mt-3">
                                 <button type="button" class="btn btn-capture" onclick="capturarFoto()">
@@ -212,20 +221,12 @@ video {
                                     <p class="text-muted small mb-3">Posicione a placa do veículo no quadro abaixo</p>
                                     <video id="video_placa" autoplay></video>
                                     <canvas id="canvas_placa" style="display: none;"></canvas>
-                                    <input type="hidden" name="foto_placa_webcam" id="foto_placa_webcam">
+                                    <input type="file" name="foto_placa" id="foto_placa_file" style="display: none;" accept="image/*">
                                     
                                     <div class="text-center mt-3">
                                         <button type="button" class="btn btn-capture" onclick="capturarFotoPlaca()">
                                             <i class="bi bi-camera"></i> Capturar Placa
                                         </button>
-                                    </div>
-                                    <div id="mobile-fallback" style="display: none;" class="alert alert-warning">
-                                        <p>Se a câmera não iniciar automaticamente:</p>
-                                        <button type="button" class="btn btn-sm btn-warning" onclick="iniciarCamera()">
-                                            <i class="bi bi-camera"></i> Tentar novamente
-                                        </button>
-                                        <p class="mt-2 small">Ou use o upload de arquivo abaixo:</p>
-                                        <input type="file" class="form-control" accept="image/*" capture="camera">
                                     </div>
                                 </div>
                             </div>
@@ -252,163 +253,125 @@ video {
     </div>
 
     <script>
-    // Substitua todo o conteúdo do <script> por este código atualizado
-document.addEventListener('DOMContentLoaded', function() {
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const inputFoto = document.getElementById('foto_webcam');
-    const videoPlaca = document.getElementById('video_placa');
-    const canvasPlaca = document.getElementById('canvas_placa');
-    const inputPlaca = document.getElementById('foto_placa_webcam');
-    let stream = null;
-
-    // Opções de configuração da câmera para mobile
-    const constraints = {
-        video: {
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-            facingMode: 'user' // 'user' para frontal, 'environment' para traseira
-        },
-        audio: false
-    };
-
-    // Função para iniciar câmera
-    async function iniciarCamera() {
-        try {
-            // Parar streams existentes
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-
-            // Solicitar permissão e iniciar câmera
-            stream = await navigator.mediaDevices.getUserMedia(constraints);
-            
-            // Configurar os elementos de vídeo
-            video.srcObject = stream;
-            videoPlaca.srcObject = stream.clone();
-            
-            // Orientação para mobile
-            video.setAttribute('playsinline', '');
-            videoPlaca.setAttribute('playsinline', '');
-            
-            // Evento para quando a câmera estiver pronta
-            video.onloadedmetadata = () => {
-                video.play();
-                videoPlaca.play();
-            };
-            
-        } catch (err) {
-            console.error("Erro na câmera:", err);
-            alert("Não foi possível acessar a câmera. Verifique as permissões.");
-            
-            // Mostrar botão alternativo para mobile
-            document.getElementById('mobile-fallback').style.display = 'block';
-        }
-    }
-
-    // Função para capturar foto
-    function capturarFoto() {
-        try {
-            const context = canvas.getContext('2d');
-            
-            // Ajustar para orientação mobile
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (isMobile) {
-                canvas.width = video.videoHeight;
-                canvas.height = video.videoWidth;
-                context.rotate(Math.PI/2);
-                context.translate(0, -canvas.width);
-            } else {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-            }
-            
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Resetar transformações
-            if (isMobile) {
-                context.setTransform(1, 0, 0, 1, 0, 0);
-            }
-            
-            const dataURL = canvas.toDataURL('image/jpeg', 0.8);
-            inputFoto.value = dataURL;
-            
-            mostrarPreview(dataURL, '.webcam-container');
-            alert("Foto do morador capturada com sucesso!");
-        } catch (err) {
-            console.error("Erro ao capturar foto:", err);
-            alert("Erro ao capturar foto. Tente novamente.");
-        }
-    }
-
-    // Função para capturar placa
-    function capturarFotoPlaca() {
-        try {
-            const context = canvasPlaca.getContext('2d');
-            
-            // Ajustar para orientação mobile
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (isMobile) {
-                canvasPlaca.width = videoPlaca.videoHeight;
-                canvasPlaca.height = videoPlaca.videoWidth;
-                context.rotate(Math.PI/2);
-                context.translate(0, -canvasPlaca.width);
-            } else {
-                canvasPlaca.width = videoPlaca.videoWidth;
-                canvasPlaca.height = videoPlaca.videoHeight;
-            }
-            
-            context.drawImage(videoPlaca, 0, 0, canvasPlaca.width, canvasPlaca.height);
-            
-            // Resetar transformações
-            if (isMobile) {
-                context.setTransform(1, 0, 0, 1, 0, 0);
-            }
-            
-            const dataURL = canvasPlaca.toDataURL('image/jpeg', 0.8);
-            inputPlaca.value = dataURL;
-            
-            mostrarPreview(dataURL, '#webcam_placa .webcam-container');
-            alert("Foto da placa capturada com sucesso!");
-        } catch (err) {
-            console.error("Erro ao capturar placa:", err);
-            alert("Erro ao capturar foto da placa. Tente novamente.");
-        }
-    }
-
-    // Função auxiliar para mostrar preview
-    function mostrarPreview(dataURL, containerSelector) {
-        const preview = document.createElement('img');
-        preview.src = dataURL;
-        preview.className = 'img-thumbnail mt-2';
-        preview.style.maxWidth = '200px';
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const fotoMoradorInput = document.getElementById('foto_morador_file');
+            let stream = null;
         
-        const container = document.querySelector(containerSelector);
-        const existingPreview = container.querySelector('.img-thumbnail');
-        if (existingPreview) {
-            container.replaceChild(preview, existingPreview);
-        } else {
-            container.appendChild(preview);
-        }
-    }
-
-    // Alternar entre webcam e upload de arquivo
-    document.getElementById('opcao_webcam').addEventListener('change', toggleOpcaoPlaca);
-    document.getElementById('opcao_arquivo').addEventListener('change', toggleOpcaoPlaca);
-
-    function toggleOpcaoPlaca() {
-        const usarWebcam = document.getElementById('opcao_webcam').checked;
-        document.getElementById('webcam_placa').style.display = usarWebcam ? 'block' : 'none';
-        document.getElementById('upload_placa').style.display = usarWebcam ? 'none' : 'block';
+            // Iniciar câmera
+            async function iniciarCamera() {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 },
+                            facingMode: 'user'
+                        },
+                        audio: false
+                    });
+                    video.srcObject = stream;
+                } catch (err) {
+                    console.error("Erro na câmera:", err);
+                    alert("Não foi possível acessar a câmera. Verifique as permissões.");
+                }
+            }
         
-        if (usarWebcam && !stream) {
+            // Capturar foto
+            function capturarFoto() {
+                try {
+                    const context = canvas.getContext('2d');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    // Converter para Blob e criar arquivo
+                    canvas.toBlob(function(blob) {
+                        const file = new File([blob], 'foto_morador.jpg', { 
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        
+                        // Criar DataTransfer para simular input file
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fotoMoradorInput.files = dataTransfer.files;
+                        
+                        // Debug
+                        console.log('Arquivo criado:', {
+                            name: file.name,
+                            size: file.size,
+                            type: file.type
+                        });
+                        
+                        // Mostrar preview
+                        const previewUrl = URL.createObjectURL(blob);
+                        mostrarPreview(previewUrl, '.webcam-container');
+                        
+                        alert("Foto capturada com sucesso!");
+                    }, 'image/jpeg', 0.8);
+                } catch (err) {
+                    console.error("Erro ao capturar foto:", err);
+                    alert("Erro ao capturar foto: " + err.message);
+                }
+            }
+        
+            // Mostrar preview
+            function mostrarPreview(url, containerSelector) {
+                const container = document.querySelector(containerSelector);
+                let preview = container.querySelector('.img-preview');
+                
+                if (!preview) {
+                    preview = document.createElement('img');
+                    preview.className = 'img-preview img-thumbnail mt-2';
+                    preview.style.maxWidth = '200px';
+                    container.appendChild(preview);
+                }
+                
+                preview.src = url;
+            }
+        
+            // Enviar formulário via AJAX
+            document.querySelector('form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const form = e.target;
+                const formData = new FormData(form);
+                
+                // Verificar se há arquivo de foto
+                if (!fotoMoradorInput.files || fotoMoradorInput.files.length === 0) {
+                    alert("Por favor, capture uma foto antes de enviar");
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        const result = await response.json();
+                        if (result.error) {
+                            alert("Erro: " + result.error);
+                        } else {
+                            window.location.href = '/';
+                        }
+                    }
+                } catch (error) {
+                    console.error("Erro ao enviar formulário:", error);
+                    alert("Erro ao enviar formulário. Verifique o console para detalhes.");
+                }
+            });
+        
+            // Iniciar câmera ao carregar
             iniciarCamera();
-        }
-    }
-
-    // Iniciar câmera quando a página carregar
-    iniciarCamera();
-});
+            
+            // Expor função para o botão
+            window.capturarFoto = capturarFoto;
+        });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

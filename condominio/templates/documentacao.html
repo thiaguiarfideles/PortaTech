@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação do Sistema Condominial</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .doc-section {
+            margin-bottom: 3rem;
+        }
+        .nav-docs {
+            position: sticky;
+            top: 20px;
+        }
+        .diagram-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 2rem;
+        }
+        .endpoint-card {
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky pt-3 nav-docs">
+                    <h4 class="mb-3">Documentação</h4>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#overview">
+                                Visão Geral
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#architecture">
+                                Arquitetura
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#flow">
+                                Fluxo do Sistema
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#endpoints">
+                                Endpoints
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('routes.api_docs') }}">
+                                API Docs (Swagger)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#database">
+                                Modelo de Dados
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Documentação do Sistema</h1>
+                </div>
+
+                <!-- Overview Section -->
+                <section id="overview" class="doc-section">
+                    <h2>Visão Geral</h2>
+                    <p class="lead">Sistema integrado de controle de acesso condominial com reconhecimento facial e de placas.</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Funcionalidades Principais</h5>
+                                    <ul>
+                                        <li>Reconhecimento facial de moradores</li>
+                                        <li>Leitura automática de placas</li>
+                                        <li>Controle de vagas de garagem</li>
+                                        <li>Gestão de visitantes</li>
+                                        <li>Histórico de movimentações</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Tecnologias Utilizadas</h5>
+                                    <ul>
+                                        <li>Python Flask (Backend)</li>
+                                        <li>SQLAlchemy (ORM)</li>
+                                        <li>Face Recognition (Reconhecimento facial)</li>
+                                        <li>EasyOCR (Leitura de placas)</li>
+                                        <li>Bootstrap 5 (Interface)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Architecture Section -->
+                <section id="architecture" class="doc-section">
+                    <h2>Arquitetura do Sistema</h2>
+                    <div class="diagram-container">
+                        <img src="{{ url_for('static', filename='docs/architecture.png') }}" alt="Diagrama de Arquitetura" class="img-fluid">
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <h5>Frontend</h5>
+                            <p>Interface web responsiva construída com Bootstrap e templates Jinja2.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Backend</h5>
+                            <p>API Flask com Blueprints para organização modular das rotas.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Banco de Dados</h5>
+                            <p>SQLite em desenvolvimento, com migrações via Flask-Migrate.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Flow Section -->
+                <section id="flow" class="doc-section">
+                    <h2>Fluxo do Sistema</h2>
+                    <div class="diagram-container">
+                        <img src="{{ url_for('static', filename='docs/fluxo-sistema.png') }}" alt="Fluxo do Sistema" class="img-fluid">
+                    </div>
+                    <div class="mt-3">
+                        <a href="{{ url_for('routes.fluxo_sistema') }}" class="btn btn-primary">
+                            Ver Fluxo Detalhado
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Endpoints Section -->
+                <section id="endpoints" class="doc-section">
+                    <h2>Principais Endpoints</h2>
+                    
+                    <div class="card endpoint-card">
+                        <div class="card-body">
+                            <h5 class="card-title">POST /verificar_entrada</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Controle de Acesso</h6>
+                            <p class="card-text">Verifica se um morador ou veículo tem acesso liberado.</p>
+                            <pre><code>{
+  "image": "base64_encoded_image",
+  "tipo": "facial|placa"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="card endpoint-card">
+                        <div class="card-body">
+                            <h5 class="card-title">GET /painel_vagas_visual</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Vagas de Garagem</h6>
+                            <p class="card-text">Retorna o status atual das vagas de garagem.</p>
+                        </div>
+                    </div>
+
+                    <div class="card endpoint-card">
+                        <div class="card-body">
+                            <h5 class="card-title">POST /visitante</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Gestão de Visitantes</h6>
+                            <p class="card-text">Registra um novo visitante no sistema.</p>
+                            <pre><code>{
+  "nome": "Nome do Visitante",
+  "casa_destino": "101",
+  "placa": "ABC1234"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <a href="{{ url_for('routes.api_docs') }}" class="btn btn-primary">
+                            Ver Documentação Completa da API
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Database Section -->
+                <section id="database" class="doc-section">
+                    <h2>Modelo de Dados</h2>
+                    <div class="diagram-container">
+                        <img src="{{ url_for('static', filename='docs/diagrama-banco.png') }}" alt="Modelo de Dados" class="img-fluid">
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h5>Entidades Principais</h5>
+                            <ul>
+                                <li><strong>Morador</strong>: Responsável pelas unidades</li>
+                                <li><strong>Veiculo</strong>: Veículos cadastrados</li>
+                                <li><strong>Visitante</strong>: Visitantes temporários</li>
+                                <li><strong>VagaGaragem</strong>: Vagas de estacionamento</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Relacionamentos</h5>
+                            <ul>
+                                <li>Morador possui vários Veículos</li>
+                                <li>Veículo ocupa uma Vaga</li>
+                                <li>Visitante pode ocupar uma Vaga</li>
+                                <li>Todas as movimentações são registradas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

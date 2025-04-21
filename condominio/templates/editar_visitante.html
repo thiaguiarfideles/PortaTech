@@ -84,7 +84,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="form-section">
-                    <form action="{{ url_for('editar_visitante', visitante_id=visitante.id) }}" method="post">
+                    <form action="{{ url_for('routes.editar_visitante', visitante_id=visitante.id) }}" method="post">
                         <div class="row mb-4">
                             <div class="col-md-4 text-center">
                                 {% if visitante.foto_visitante %}
@@ -132,7 +132,7 @@
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <a href="{{ url_for('visualizar_visitantes') }}" class="btn btn-outline-secondary me-md-2">
+                            <a href="{{ url_for('routes.visualizar_visitantes') }}" class="btn btn-outline-secondary me-md-2">
                                 <i class="bi bi-x-circle"></i> Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary">

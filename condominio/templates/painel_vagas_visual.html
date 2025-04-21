@@ -5,7 +5,7 @@
     <title>Painel Visual de Vagas | PortaTech</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <meta http-equiv="refresh" content="10;url=?v={{ now().timestamp() }}">
+    <meta http-equiv="refresh" content="10">
     <style>
         :root {
             --verde: #28a745;
@@ -33,7 +33,7 @@
         
         .car-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 10px;
             margin-bottom: 2rem;
         }
@@ -44,6 +44,12 @@
             border-radius: 5px;
             background-color: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .car-slot:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .car-icon {
@@ -51,15 +57,19 @@
         }
         
         .vaga-number {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             margin-top: 5px;
             font-weight: bold;
         }
         
-        .status-badge {
+        .placa {
             font-size: 0.7rem;
             margin-top: 5px;
+            font-family: monospace;
         }
+        
+        .livre { color: var(--verde); }
+        .ocupada { color: var(--vermelho); }
         
         .legenda {
             display: flex;
@@ -81,12 +91,9 @@
             display: inline-block;
         }
         
-        .livre { color: var(--verde); }
-        .ocupada { color: var(--vermelho); }
-        
         @media (max-width: 768px) {
             .car-grid {
-                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             }
         }
     </style>
@@ -103,7 +110,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/painel_vagas"><i class="bi bi-grid"></i> Painel Tradicional</a>
+                        <a class="nav-link" href="/painel_porteiro"><i class="bi bi-person-badge"></i> Painel Porteiro</a>
                     </li>
                 </ul>
                 <div class="d-flex">
@@ -118,7 +125,7 @@
     <div class="container py-4">
         <div class="dashboard-header text-center">
             <h2><i class="bi bi-p-square"></i> Painel Visual de Vagas</h2>
-            <p class="lead mb-4">Monitoramento em tempo real da garagem (73 vagas)</p>
+            <p class="lead mb-4">Monitoramento em tempo real da garagem ({{ total_vagas }} vagas)</p>
             
             <div class="row justify-content-center">
                 <div class="col-md-3 mb-3">
@@ -165,16 +172,15 @@
         
         <div class="car-grid">
             {% for vaga in vagas %}
-            <div class="car-slot" data-vaga-id="{{ vaga.id }}">
+            <div class="car-slot" onclick="checkVagaStatus('{{ vaga.id }}')">
                 <i class="bi bi-car-front car-icon {% if vaga.ocupada %}ocupada{% else %}livre{% endif %}"></i>
                 <div class="vaga-number">Vaga {{ vaga.numero }}</div>
-                <div class="vaga-id">ID: {{ vaga.id }}</div>
-                <div class="vaga-status">
+                {% if vaga.ocupada and vaga.placa %}
+                    <div class="placa">{{ vaga.placa }}</div>
+                {% endif %}
+                <div class="status-badge">
                     {% if vaga.ocupada %}
                         <span class="badge bg-danger">Ocupada</span>
-                        {% if vaga.placa %}
-                            <div class="placa">{{ vaga.placa }}</div>
-                        {% endif %}
                     {% else %}
                         <span class="badge bg-success">Livre</span>
                     {% endif %}
@@ -186,24 +192,24 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Auto-refresh every minute
+        // Auto-refresh every 10 seconds
         setTimeout(function() {
             location.reload();
-        }, 60000);
-        // Auto-refresh every 10 seconds
-setTimeout(function() {
-    location.reload();
-}, 10000);
+        }, 10000);
 
-// Debug function to check vaga status
-function checkVagaStatus(vagaId) {
-    fetch(`/api/vaga_status/${vagaId}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log(`Status da vaga ${vagaId}:`, data);
-            alert(`Vaga ${vagaId}\nOcupada: ${data.ocupada}\nPlaca: ${data.placa}`);
-        });
-}
+        // Debug function to check vaga status
+        function checkVagaStatus(vagaId) {
+            fetch(`/api/vaga_status/${vagaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`Status da vaga ${vagaId}:`, data);
+                    alert(`Vaga ${data.numero}\nStatus: ${data.ocupada ? 'Ocupada' : 'Livre'}\nPlaca: ${data.placa || 'N/A'}`);
+                })
+                .catch(error => {
+                    console.error('Erro ao verificar status:', error);
+                    alert('Erro ao verificar status da vaga');
+                });
+        }
     </script>
 </body>
 </html>

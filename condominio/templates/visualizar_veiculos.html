@@ -107,7 +107,7 @@
     <div class="container">
         <div class="table-container">
             <div class="d-flex justify-content-between mb-4">
-                <a href="{{ url_for('cadastrar_veiculo') }}" class="btn btn-primary">
+                <a href="{{ url_for('routes.cadastrar_veiculo') }}" class="btn btn-primary">
                     <i class="bi bi-plus-circle"></i> Novo Veículo
                 </a>
                 <div class="d-flex align-items-center">
@@ -166,7 +166,7 @@
                             </td>
                             <td>{{ veiculo.data_cadastro.strftime('%d/%m/%Y') }}</td>
                             <td>
-                                <a href="{{ url_for('editar_veiculo', veiculo_id=veiculo.id) }}" class="btn btn-sm btn-edit">
+                                <a href="{{ url_for('routes.editar_veiculo', veiculo_id=veiculo.id) }}" class="btn btn-sm btn-edit">
                                     <i class="bi bi-pencil"></i> Editar
                                 </a>
                             </td>

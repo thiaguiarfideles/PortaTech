@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Acessos | PortaTech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #4e73df;
+            --success: #1cc88a;
+            --warning: #f6c23e;
+            --danger: #e74a3b;
+            --secondary: #858796;
+            --dark: #5a5c69;
+        }
+        
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        
+        .table-responsive {
+            max-height: 70vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        
+        .table-responsive::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb {
+            background-color: #d1d3e2;
+            border-radius: 3px;
+        }
+        
+        .badge-facial { background-color: var(--primary); }
+        .badge-placa { background-color: var(--success); }
+        .badge-manual { background-color: var(--warning); color: #000; }
+        .badge-status { min-width: 80px; }
+        
+        .filter-card {
+            background-color: white;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .duration-badge {
+            background-color: var(--secondary);
+            min-width: 70px;
+            font-weight: 500;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            color: var(--dark);
+            border-top: none;
+        }
+        
+        .export-btn {
+            min-width: 120px;
+        }
+        
+        @media (max-width: 768px) {
+            .table-responsive {
+                max-height: 60vh;
+            }
+            
+            .filter-card .col-md-2, 
+            .filter-card .col-md-3 {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="bi bi-shield-lock me-2"></i>
+                <span>PortaTech</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="controleDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-clipboard2-check me-1"></i> Controle
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/painel_porteiro"><i class="bi bi-person-badge me-2"></i>Painel Porteiro</a></li>
+                            <li><a class="dropdown-item active" href="/historico"><i class="bi bi-clock-history me-2"></i>Histórico</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button onclick="location.reload()" class="btn btn-outline-light me-2">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-clock-history me-2"></i>Histórico de Acessos
+            </h1>
+            <div>
+                <button class="btn btn-success export-btn me-2" onclick="exportToExcel()">
+                    <i class="bi bi-file-earmark-excel me-1"></i>Exportar
+                </button>
+                <a href="{{ url_for('routes.historico') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Atualizar
+                </a>
+            </div>
+        </div>
+    
+        <!-- Filters Card -->
+        <div class="card shadow mb-4 filter-card">
+            <div class="card-body py-3">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="filtro" class="form-label small fw-bold text-uppercase text-muted">Pesquisar</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" id="filtro" name="filtro" value="{{ filtro }}" 
+                                   placeholder="Nome, placa ou identificador">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="tipo" class="form-label small fw-bold text-uppercase text-muted">Tipo</label>
+                        <select class="form-select" id="tipo" name="tipo">
+                            <option value="todos" {% if tipo == 'todos' %}selected{% endif %}>Todos</option>
+                            <option value="facial" {% if tipo == 'facial' %}selected{% endif %}>Facial</option>
+                            <option value="placa" {% if tipo == 'placa' %}selected{% endif %}>Placa</option>
+                            <option value="manual" {% if tipo == 'manual' %}selected{% endif %}>Manual</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="data_inicio" class="form-label small fw-bold text-uppercase text-muted">Data Inicial</label>
+                        <input type="date" class="form-control" id="data_inicio" name="data_inicio" 
+                               value="{{ data_inicio }}" max="{{ now.strftime('%Y-%m-%d') }}">
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="data_fim" class="form-label small fw-bold text-uppercase text-muted">Data Final</label>
+                        <input type="date" class="form-control" id="data_fim" name="data_fim" 
+                               value="{{ data_fim }}" max="{{ now.strftime('%Y-%m-%d') }}">
+                    </div>
+                    
+                    <div class="col-md-2 d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-funnel me-1"></i>Filtrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    
+        <!-- Records Table -->
+        <div class="card shadow mb-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Data</th>
+                                <th>Tipo</th>
+                                <th>Identificação</th>
+                                <th>Status</th>
+                                <th>Entrada</th>
+                                <th>Saída</th>
+                                <th class="pe-4">Duração</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for registro in registros %}
+                            <tr>
+                                <td class="ps-4">{{ registro.entrada.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    <span class="badge {% if registro.tipo == 'facial' %}badge-facial
+                                                     {% elif registro.tipo == 'placa' %}badge-placa
+                                                     {% else %}badge-manual{% endif %}">
+                                        {{ registro.tipo|capitalize }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if registro.morador %}
+                                        {{ registro.morador.nome }} ({{ registro.identificador }})
+                                    {% elif registro.veiculo %}
+                                        {{ registro.veiculo.placa }}
+                                        {% if registro.veiculo.morador %}
+                                            ({{ registro.veiculo.morador.nome }})
+                                        {% endif %}
+                                    {% elif registro.visitante %}
+                                        {{ registro.visitante.nome }} (Visitante)
+                                    {% else %}
+                                        {{ registro.identificador }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-status {% if registro.status == 'reconhecido' %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ registro.status|capitalize }}
+                                    </span>
+                                </td>
+                                <td>{{ registro.entrada.strftime('%H:%M:%S') }}</td>
+                                <td>
+                                    {% if registro.saida %}
+                                        <span class="text-success">{{ registro.saida.strftime('%H:%M:%S') }}</span>
+                                        <div class="text-muted small">{{ registro.saida.strftime('%d/%m/%Y') }}</div>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Em aberto</span>
+                                        <div class="text-muted small">Aguardando saída</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if registro.saida %}
+                                        {% set duration = (registro.saida - registro.entrada).total_seconds() %}
+                                        {% if duration > 86400 %}
+                                            <span class="badge bg-info">{{ (duration/86400)|round(1) }} dias</span>
+                                        {% elif duration > 3600 %}
+                                            <span class="badge bg-primary">{{ (duration/3600)|round(1) }} horas</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ (duration/60)|round(1) }} min</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    Nenhum registro encontrado com os filtros atuais
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-download me-2"></i>Exportar Histórico
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-grid gap-3">
+                        <button class="btn btn-success text-start py-3" onclick="exportExcel()">
+                            <i class="bi bi-file-earmark-excel me-2"></i>
+                            <span class="d-inline-block">
+                                <strong>Exportar para Excel</strong><br>
+                                <small class="text-white-50">Formato XLSX compatível</small>
+                            </span>
+                        </button>
+                        
+                        <button class="btn btn-primary text-start py-3" onclick="exportPDF()">
+                            <i class="bi bi-file-earmark-pdf me-2"></i>
+                            <span class="d-inline-block">
+                                <strong>Exportar para PDF</strong><br>
+                                <small class="text-white-50">Documento para impressão</small>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function exportToExcel() {
+        const exportModal = new bootstrap.Modal(document.getElementById('exportModal'));
+        exportModal.show();
+    }
+    
+    function exportExcel() {
+        const params = new URLSearchParams(window.location.search);
+        window.location.href = `/exportar_historico_excel?${params.toString()}`;
+    }
+    
+    function exportPDF() {
+        const params = new URLSearchParams(window.location.search);
+        window.location.href = `/exportar_historico_pdf?${params.toString()}`;
+    }
+    
+    // Auto-refresh every 30 seconds if no filters applied
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.toString() === '') {
+            setTimeout(() => location.reload(), 30000);
+        }
+    });
+    </script>
+</body>
+</html>

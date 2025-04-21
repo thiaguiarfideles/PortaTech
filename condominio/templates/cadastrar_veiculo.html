@@ -2,12 +2,11 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Veículo | PortaTech</title>
+    <title>Cadastrar Veículo | PortaTech</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
     <style>
-        .hero-edit {
+        .hero-cadastro {
             background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
             color: white;
             padding: 2rem 0;
@@ -34,13 +33,8 @@
             color: #6e48aa;
             margin-right: 10px;
         }
-        .current-owner {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
     </style>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 <body>
     <!-- Navbar -->
@@ -78,19 +72,31 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/veiculo/cadastrar"><i class="bi bi-plus-circle"></i> Cadastrar</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('visualizar_veiculos') }}"><i class="bi bi-list-ul"></i> Listar</a></li>
+                            <li><a class="dropdown-item" href="/veiculos"><i class="bi bi-list-ul"></i> Listar</a></li>
                         </ul>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-
+    <!-- Mensagens Flash -->
+<div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
     <!-- Hero Section -->
-    <section class="hero-edit">
+    <section class="hero-cadastro">
         <div class="container text-center">
-            <h1><i class="bi bi-pencil-square"></i> Editar Veículo</h1>
-            <p class="lead">Atualize os dados do veículo {{ veiculo.placa }}</p>
+            <h1><i class="bi bi-car-front"></i> Cadastrar Veículo</h1>
+            <p class="lead">Registre um novo veículo no sistema do condomínio</p>
         </div>
     </section>
 
@@ -99,30 +105,18 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="form-section">
-                    <form action="{{ url_for('editar_veiculo', veiculo_id=veiculo.id) }}" method="post">
-                        <h4 class="mb-4"><i class="bi bi-person-check"></i> Proprietário Atual</h4>
-                        
-                        <div class="current-owner mb-4">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-person vehicle-icon"></i>
-                                <div>
-                                    <h5 class="mb-1">{{ veiculo.morador.nome }}</h5>
-                                    <p class="mb-0 text-muted">Casa {{ veiculo.morador.casa }} - {{ veiculo.morador.tipo }}</p>
-                                </div>
-                            </div>
-                        </div>
+                    <form action="{{ url_for('routes.cadastrar_veiculo') }}" method="post">
 
+                        <h4 class="mb-4"><i class="bi bi-person-check"></i> Dados do Proprietário</h4>
+                        
                         <div class="mb-4">
-                            <label class="form-label">Alterar Proprietário (Opcional)</label>
-                            <select name="id_morador" class="form-select select2-morador">
-                                <option value="">Manter proprietário atual</option>
+                            <label class="form-label">Morador Proprietário</label>
+                            <select name="id_morador" class="form-select select2-morador" required>
                                 {% for morador in moradores %}
-                                    <option value="{{ morador.id }}" {% if morador.id == veiculo.id_morador %}selected{% endif %}>
-                                        {{ morador.nome }} - Casa {{ morador.casa }} ({{ morador.tipo }})
-                                    </option>
+                                    <option value="{{ morador.id }}">{{ morador.nome }} - Casa {{ morador.casa }} ({{ morador.tipo }})</option>
                                 {% endfor %}
                             </select>
-                            <div class="form-text">Selecione apenas se deseja transferir o veículo para outro morador</div>
+                            <div class="form-text">Selecione o morador responsável pelo veículo</div>
                         </div>
 
                         <h4 class="mb-4 mt-5"><i class="bi bi-car-front"></i> Dados do Veículo</h4>
@@ -132,35 +126,40 @@
                                 <label class="form-label">Placa do Veículo</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
-                                    <input type="text" name="placa" class="form-control" value="{{ veiculo.placa }}" required>
+                                    <input type="text" name="placa" class="form-control" placeholder="ABC1D23" required>
                                 </div>
+                                <div class="form-text">Informe a placa no formato correto</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Tipo do Veículo</label>
-                                <select name="tipo_veiculo" class="form-select">
+                                <select name="tipo_veiculo" class="form-select" required>
                                     <option value="">Selecione...</option>
-                                    <option value="Carro" {% if veiculo.tipo_veiculo == 'Carro' %}selected{% endif %}>Carro</option>
-                                    <option value="Moto" {% if veiculo.tipo_veiculo == 'Moto' %}selected{% endif %}>Moto</option>
-                                    <option value="Caminhonete" {% if veiculo.tipo_veiculo == 'Caminhonete' %}selected{% endif %}>Caminhonete</option>
-                                    <option value="Van" {% if veiculo.tipo_veiculo == 'Van' %}selected{% endif %}>Van</option>
-                                    <option value="Outro" {% if veiculo.tipo_veiculo and veiculo.tipo_veiculo not in ['Carro', 'Moto', 'Caminhonete', 'Van'] %}selected{% endif %}>Outro</option>
+                                    <option value="CARRO">Carro</option>
+                                    <option value="MOTO">Moto</option>
+                                    <option value="CAMINHONETE">Caminhonete</option>
+                                    <option value="VAN">Van</option>
+                                    <option value="OUTRO">Outro</option>
                                 </select>
                             </div>
                         </div>
 
-                        {% if veiculo.tipo_veiculo and veiculo.tipo_veiculo not in ['Carro', 'Moto', 'Caminhonete', 'Van'] %}
-                        <div class="mb-3">
-                            <label class="form-label">Especificar Tipo</label>
-                            <input type="text" name="tipo_personalizado" class="form-control" value="{{ veiculo.tipo_veiculo }}" placeholder="Digite o tipo do veículo">
+                        <div class="mb-4">
+                            <label class="form-label">Quantidade de Veículos</label>
+                            <div class="input-group" style="max-width: 150px;">
+                                <button class="btn btn-outline-secondary" type="button" id="decrement-btn">-</button>
+                                <input type="number" name="qtde_veiculos" class="form-control text-center" value="1" min="1" max="5" required>
+                                <button class="btn btn-outline-secondary" type="button" id="increment-btn">+</button>
+                            </div>
+                            <div class="form-text">Número de veículos deste tipo</div>
                         </div>
-                        {% endif %}
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <a href="{{ url_for('visualizar_veiculos') }}" class="btn btn-outline-secondary me-md-2">
+                            <a href="{{ url_for('routes.index') }}" class="btn btn-outline-secondary me-md-2">
+
                                 <i class="bi bi-x-circle"></i> Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle"></i> Salvar Alterações
+                                <i class="bi bi-check-circle"></i> Cadastrar Veículo
                             </button>
                         </div>
                     </form>
@@ -180,24 +179,30 @@
                 placeholder: "Selecione um morador",
                 allowClear: true
             });
+        });
 
-            // Máscara para placa (opcional)
-            $('input[name="placa"]').on('input', function(e) {
-                let value = e.target.value.replace(/\W/g, '').toUpperCase();
-                if (value.length > 3) {
-                    value = value.substring(0, 3) + '-' + value.substring(3);
-                }
-                e.target.value = value.substring(0, 8);
-            });
+        // Controle de incremento/decremento
+        document.getElementById('increment-btn').addEventListener('click', function() {
+            const input = document.querySelector('input[name="qtde_veiculos"]');
+            if (parseInt(input.value) < 5) {
+                input.value = parseInt(input.value) + 1;
+            }
+        });
 
-            // Mostrar campo personalizado quando "Outro" for selecionado
-            $('select[name="tipo_veiculo"]').change(function() {
-                if ($(this).val() === 'Outro') {
-                    $('input[name="tipo_personalizado"]').parent().show();
-                } else {
-                    $('input[name="tipo_personalizado"]').parent().hide();
-                }
-            }).trigger('change');
+        document.getElementById('decrement-btn').addEventListener('click', function() {
+            const input = document.querySelector('input[name="qtde_veiculos"]');
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        });
+
+        // Máscara para placa (opcional)
+        document.querySelector('input[name="placa"]').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            if (value.length > 3) {
+                value = value.substring(0, 3) + value.substring(3).replace(/(\d)([A-Z0-9])(\d{2})/, '$1$2$3');
+            }
+            e.target.value = value.substring(0, 7);  // Limita ao tamanho máximo
         });
     </script>
 </body>
